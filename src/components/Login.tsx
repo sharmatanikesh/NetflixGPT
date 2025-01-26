@@ -3,9 +3,14 @@ import Header from "./Header";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInFormValue, signInSchema } from "../utils/types";
 import { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../utils/firebase";
+//import { useDispatch } from "react-redux";
+//import { addUser } from "../utils/userSlice";
+
 function Login() {
   const [toggleSignIn, setToggleSignIn] = useState<boolean>(true);
-
+  //const dispatch = useDispatch();
   const handleToggleSignIn = () => {
     setToggleSignIn(!toggleSignIn);
   };
@@ -17,12 +22,27 @@ function Login() {
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
+      firstName: "",
       password: "",
     },
   });
 
-  const handleSignIn: SubmitHandler<SignInFormValue> = (data) => {
+   const  handleSignIn: SubmitHandler<SignInFormValue> = (data) => {
     console.log(data);
+    if(!toggleSignIn){
+      console.log('Sign Up')
+      console.log(data)
+      createUserWithEmailAndPassword(auth, data.email, data.password)
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorCode, errorMessage)
+    // ..
+  });
+    }else{
+      console.log('Sign In')
+    }
+    
   };
   return (
     <div className="relative">
@@ -48,7 +68,7 @@ function Login() {
               {...register("firstName")}
               className=" border border-white  focus:border-white focus:outline-white outline-none  rounded-md p-4 my-4 w-full bg-black/10 opacity-70  "
               type="text"
-              placeholder="Email or mobile number"
+              placeholder="First Name"
             />
             <p className=" text-red-500 text-md">{errors.email?.message}</p>
           </>
